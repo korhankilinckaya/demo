@@ -18,11 +18,11 @@ import java.util.List;
 @RestController
 @EnableJpaRepositories(basePackageClasses = BookingRepository.class)
 @RequestMapping("/api")
-public class DemoController {
+public class BookingController {
   private final BookingService bookingService;
 
   @Autowired
-  public DemoController(BookingService bookingService) {
+  public BookingController(BookingService bookingService) {
     this.bookingService = bookingService;
   }
 

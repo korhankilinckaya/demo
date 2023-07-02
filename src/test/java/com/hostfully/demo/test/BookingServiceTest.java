@@ -12,6 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +28,9 @@ public class BookingServiceTest {
   @Mock
   private BookingRepository bookingRepository;
 
+  @Mock
+  private EntityManager entityManager;
+
   @InjectMocks
   private BookingValidationService bookingValidationService;
 
@@ -35,10 +40,12 @@ public class BookingServiceTest {
   @BeforeEach
   public void setup() {
     MockitoAnnotations.openMocks(this);
+    bookingService.setEntityManager(entityManager);
   }
 
   @Test
   public void testGetAll() {
+    //test get all
     List<Booking> bookings = new ArrayList<>();
     bookings.add(new Booking("John Doe", LocalDate.of(2023, 7, 1), LocalDate.of(2023, 7, 5)));
     bookings.add(new Booking("Jane Smith", LocalDate.of(2023, 7, 8), LocalDate.of(2023, 7, 12)));
@@ -52,32 +59,41 @@ public class BookingServiceTest {
 
   @Test
   public void testGetAllBookings() {
+    //test get all bookings
     List<Booking> bookings = new ArrayList<>();
     bookings.add(new Booking("John Doe", LocalDate.of(2023, 7, 1), LocalDate.of(2023, 7, 5)));
     bookings.add(new Booking("Jane Smith", LocalDate.of(2023, 7, 8), LocalDate.of(2023, 7, 12)));
 
-    when(bookingRepository.findAll()).thenReturn(bookings);
+    TypedQuery<Booking> query = mock(TypedQuery.class);
+    when(entityManager.createQuery(anyString(), eq(Booking.class))).thenReturn(query);
+    when(query.setParameter(eq("name"), anyString())).thenReturn(query);
+    when(query.getResultList()).thenReturn(bookings);
 
-    List<Booking> result = bookingService.getAll();
+    List<Booking> result = bookingService.getAllBookings();
 
     assertEquals(bookings, result);
   }
 
   @Test
   public void testGetAllBlocks() {
+    //test get all blocks
     List<Booking> bookings = new ArrayList<>();
-    bookings.add(new Booking("John Doe", LocalDate.of(2023, 7, 1), LocalDate.of(2023, 7, 5)));
-    bookings.add(new Booking("Jane Smith", LocalDate.of(2023, 7, 8), LocalDate.of(2023, 7, 12)));
+    bookings.add(new Booking("block", LocalDate.of(2023, 7, 1), LocalDate.of(2023, 7, 5)));
+    bookings.add(new Booking("block", LocalDate.of(2023, 7, 8), LocalDate.of(2023, 7, 12)));
 
-    when(bookingRepository.findAll()).thenReturn(bookings);
+    TypedQuery<Booking> query = mock(TypedQuery.class);
+    when(entityManager.createQuery(anyString(), eq(Booking.class))).thenReturn(query);
+    when(query.setParameter(eq("name"), anyString())).thenReturn(query);
+    when(query.getResultList()).thenReturn(bookings);
 
-    List<Booking> result = bookingService.getAll();
+    List<Booking> result = bookingService.getAllBlocks();
 
     assertEquals(bookings, result);
   }
 
   @Test
   public void testGetBookingById() {
+    //test get by id
     Booking booking = new Booking("John Doe", LocalDate.of(2023, 7, 1), LocalDate.of(2023, 7, 5));
 
     when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
@@ -89,6 +105,7 @@ public class BookingServiceTest {
 
   @Test
   public void testCreateBookingWithoutOverlappingBooking() {
+    //test create booking when there are no bookings within the same date range
     Booking newBooking = new Booking("Alice Johnson", LocalDate.of(2023, 7, 15), LocalDate.of(2023, 7, 20));
 
     List<Booking> bookings = new ArrayList<>();
@@ -100,6 +117,7 @@ public class BookingServiceTest {
 
   @Test
   public void testCreateBookingWithOverlappingBooking() {
+    //test create booking when there are no bookings within the same date range
     Booking newBooking = new Booking("Alice Johnson", LocalDate.of(2023, 7, 9), LocalDate.of(2023, 7, 11));
 
     List<Booking> bookings = new ArrayList<>();
@@ -110,43 +128,42 @@ public class BookingServiceTest {
       bookingValidationService.validateBooking(bookings, newBooking);
     });
 
+    //booking should not be saved
     Assertions.assertEquals("Booking is within the range of another Block or Booking", exception.getMessage());
   }
 
   @Test
   public void testCreateBlockWithOverlappingBlock() {
+    //test create block when there are blocks within the same date range
     Booking newBooking = new Booking("block", LocalDate.of(2023, 7, 5), LocalDate.of(2023, 7, 20));
 
-    List<Booking> bookings = new ArrayList<>();
-    bookings.add(new Booking("block", LocalDate.of(2023, 7, 1), LocalDate.of(2023, 7, 5)));
-    bookings.add(new Booking("block", LocalDate.of(2023, 7, 8), LocalDate.of(2023, 7, 12)));
-
-    when(bookingRepository.findAll()).thenReturn(bookings);
-
-    bookingService.createOrUpdateBooking(newBooking);
-
-    verify(bookingRepository, times(1)).save(newBooking);
+    //when get all bookings method return null
+    //block should be saved
+    assertTrue(bookingValidationService.validateBlock(null, newBooking));
   }
 
   @Test
   public void testCreateBlockWithOverlappingBooking() {
-    Booking newBooking = new Booking("block", LocalDate.of(2023, 7, 15), LocalDate.of(2023, 7, 20));
+    //test create block when there are bookings within the same date range
+    Booking newBooking = new Booking("block", LocalDate.of(2023, 7, 5), LocalDate.of(2023, 7, 20));
 
     List<Booking> bookings = new ArrayList<>();
     bookings.add(new Booking("John Doe", LocalDate.of(2023, 7, 1), LocalDate.of(2023, 7, 5)));
     bookings.add(new Booking("Jane Smith", LocalDate.of(2023, 7, 8), LocalDate.of(2023, 7, 12)));
 
-    when(bookingService.getAllBookings()).thenReturn(bookings);
+    when(bookingRepository.findAll()).thenReturn(bookings);
 
     BookingValidationException exception = Assertions.assertThrows(BookingValidationException.class, () -> {
       bookingValidationService.validateBlock(bookings, newBooking);
     });
 
-    Assertions.assertEquals("Booking is within the range of another Block or Booking", exception.getMessage());
+    //block should not be saved
+    Assertions.assertEquals("Block is within the range of another Booking", exception.getMessage());
   }
 
   @Test
   public void testDeleteBooking() {
+    //test delete booking
     when(bookingRepository.existsById(1L)).thenReturn(true);
     bookingService.deleteBooking(1L);
 

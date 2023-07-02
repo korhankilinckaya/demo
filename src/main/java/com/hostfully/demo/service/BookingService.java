@@ -65,4 +65,8 @@ public class BookingService {
     }
     return false;
   }
+
+  public void setEntityManager(EntityManager entityManager) {
+    this.entityManager = entityManager;
+  }
 }

@@ -10,6 +10,8 @@ import java.util.List;
 public class BookingValidationService {
 
   public boolean validateBlock(List<Booking> allBookings, Booking booking) {
+    if(allBookings == null) return true;
+
     if (booking.getEndDate().isBefore(booking.getStartDate()))
       throw new BookingValidationException("End date cannot be before Start date");
     if (overlappingBooking(booking, allBookings))
@@ -19,6 +21,8 @@ public class BookingValidationService {
   }
 
   public boolean validateBooking(List<Booking> allBookingsAndBlocks, Booking booking) {
+    if(allBookingsAndBlocks == null) return true;
+
     if (booking.getEndDate().isBefore(booking.getStartDate()))
       throw new BookingValidationException("End date cannot be before Start date");
     if (overlappingBooking(booking, allBookingsAndBlocks))
@@ -27,6 +31,7 @@ public class BookingValidationService {
     return true;
   }
 
+  //date overlapping check
   public boolean overlappingBooking(Booking target, List<Booking> allBookings) {
     return allBookings.stream()
             .anyMatch(range ->

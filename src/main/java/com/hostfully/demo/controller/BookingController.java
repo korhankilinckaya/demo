@@ -30,14 +30,36 @@ public class BookingController {
 
   @GetMapping
   @Operation(summary = "Get all bookings")
-  public List<Booking> getAllBookings() {
-    return bookingService.getAllBookings();
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "All Bookings found",
+                  content = { @Content(mediaType = "application/json",
+                          schema = @Schema(implementation = Booking.class)) }),
+          @ApiResponse(responseCode = "404", description = "All Bookings not found")
+  })
+  public ResponseEntity<List<Booking>> getAllBookings() {
+    List<Booking> bookings = bookingService.getAllBookings();
+    if (bookings != null) {
+      return ResponseEntity.ok(bookings);
+    } else {
+      return ResponseEntity.notFound().build();
+    }
   }
 
   @GetMapping("/blocks")
   @Operation(summary = "Get all blocks")
-  public List<Booking> getAllBlocks() {
-    return bookingService.getAllBlocks();
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "All Blocks found",
+                  content = { @Content(mediaType = "application/json",
+                          schema = @Schema(implementation = Booking.class)) }),
+          @ApiResponse(responseCode = "404", description = "All Blocks not found")
+  })
+  public ResponseEntity<List<Booking>> getAllBlocks() {
+    List<Booking> bookings = bookingService.getAllBlocks();
+    if (bookings != null) {
+      return ResponseEntity.ok(bookings);
+    } else {
+      return ResponseEntity.notFound().build();
+    }
   }
 
   @GetMapping("/{id}")

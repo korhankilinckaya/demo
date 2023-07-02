@@ -24,7 +24,7 @@ public class BookingService {
     this.bookingValidationService = bookingValidationService;
   }
 
-  public List<Booking> getAll(){
+  public List<Booking> getAll() {
     return bookingRepository.findAll();
   }
 
@@ -40,17 +40,19 @@ public class BookingService {
             .getResultList();
   }
 
-  public Booking getBookingById(Long id) { return bookingRepository.findById(id).orElse(null); }
+  public Booking getBookingById(Long id) {
+    return bookingRepository.findById(id).orElse(null);
+  }
 
   public Booking createOrUpdateBooking(Booking booking) {
-    if(bookingValidationService.validateBooking(this.getAllBookings(), booking)) {
+    if (bookingValidationService.validateBooking(this.getAllBookings(), booking)) {
       return bookingRepository.save(booking);
     }
     return null;
   }
 
   public Booking createOrUpdateBlock(Booking booking) {
-    if(bookingValidationService.validateBlock(this.getAllBlocks(), this.getAllBookings(), booking)) {
+    if (bookingValidationService.validateBlock(this.getAllBookings(), booking)) {
       return bookingRepository.save(booking);
     }
     return null;

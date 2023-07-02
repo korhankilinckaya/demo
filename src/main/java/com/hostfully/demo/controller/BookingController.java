@@ -47,7 +47,7 @@ public class BookingController {
 
   @GetMapping("/{id}")
   @Operation(summary = "Get a booking by ID")
-  public ResponseEntity<Booking>  getBookingById(@PathVariable Long id) {
+  public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
     Booking booking = bookingService.getBookingById(id);
     if (booking != null) {
       return ResponseEntity.ok(booking);
@@ -58,9 +58,9 @@ public class BookingController {
 
   @PostMapping
   @Operation(summary = "Create a new booking", description = "Creates a new booking")
-  public ResponseEntity<Booking>  createBooking(@RequestBody Booking booking) {
+  public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
     Booking createdBooking;
-    if("block".equalsIgnoreCase(booking.getGuestName())){
+    if ("block".equalsIgnoreCase(booking.getGuestName())) {
       createdBooking = bookingService.createOrUpdateBlock(booking);
     } else {
       createdBooking = bookingService.createOrUpdateBooking(booking);
@@ -70,11 +70,11 @@ public class BookingController {
 
   @PutMapping("/{id}")
   @Operation(summary = "Update an existing booking", description = "Updates an existing booking based on the given ID")
-  public ResponseEntity<Booking>  updateBooking(@PathVariable Long id, @RequestBody Booking booking) {
+  public ResponseEntity<Booking> updateBooking(@PathVariable Long id, @RequestBody Booking booking) {
     Booking updatedBooking = bookingService.getBookingById(id);
 
-    if(updatedBooking != null) {
-      if("block".equalsIgnoreCase(updatedBooking.getGuestName())){
+    if (updatedBooking != null) {
+      if ("block".equalsIgnoreCase(updatedBooking.getGuestName())) {
         updatedBooking.setStartDate(booking.getStartDate());
         updatedBooking.setEndDate(booking.getEndDate());
         updatedBooking = bookingService.createOrUpdateBlock(updatedBooking);

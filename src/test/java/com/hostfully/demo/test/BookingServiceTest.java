@@ -1,4 +1,5 @@
 package com.hostfully.demo.test;
+
 import com.hostfully.demo.model.Booking;
 import com.hostfully.demo.repository.BookingRepository;
 import com.hostfully.demo.service.BookingService;
@@ -52,7 +53,7 @@ public class BookingServiceTest {
   @Test
   public void testGetBookingById() {
     // Mock the data expected to be returned by the repository
-    Booking booking = new Booking( "John Doe", LocalDate.of(2023, 7, 1), LocalDate.of(2023, 7, 5));
+    Booking booking = new Booking("John Doe", LocalDate.of(2023, 7, 1), LocalDate.of(2023, 7, 5));
 
     // Set up the behavior of the mock repository
     when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));

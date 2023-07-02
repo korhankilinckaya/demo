@@ -4,11 +4,6 @@ import com.hostfully.demo.exceptions.BookingValidationException;
 import com.hostfully.demo.model.Booking;
 import com.hostfully.demo.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.web.bind.annotation.RequestBody;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,12 +25,6 @@ public class BookingController {
 
   @GetMapping
   @Operation(summary = "Get all bookings")
-  @ApiResponses(value = {
-          @ApiResponse(responseCode = "200", description = "All Bookings found",
-                  content = { @Content(mediaType = "application/json",
-                          schema = @Schema(implementation = Booking.class)) }),
-          @ApiResponse(responseCode = "404", description = "All Bookings not found")
-  })
   public ResponseEntity<List<Booking>> getAllBookings() {
     List<Booking> bookings = bookingService.getAllBookings();
     if (bookings != null) {
@@ -47,12 +36,6 @@ public class BookingController {
 
   @GetMapping("/blocks")
   @Operation(summary = "Get all blocks")
-  @ApiResponses(value = {
-          @ApiResponse(responseCode = "200", description = "All Blocks found",
-                  content = { @Content(mediaType = "application/json",
-                          schema = @Schema(implementation = Booking.class)) }),
-          @ApiResponse(responseCode = "404", description = "All Blocks not found")
-  })
   public ResponseEntity<List<Booking>> getAllBlocks() {
     List<Booking> bookings = bookingService.getAllBlocks();
     if (bookings != null) {
@@ -64,12 +47,6 @@ public class BookingController {
 
   @GetMapping("/{id}")
   @Operation(summary = "Get a booking by ID")
-  @ApiResponses(value = {
-          @ApiResponse(responseCode = "200", description = "Booking found",
-                  content = { @Content(mediaType = "application/json",
-                          schema = @Schema(implementation = Booking.class)) }),
-          @ApiResponse(responseCode = "404", description = "Booking not found")
-  })
   public ResponseEntity<Booking>  getBookingById(@PathVariable Long id) {
     Booking booking = bookingService.getBookingById(id);
     if (booking != null) {
@@ -81,7 +58,6 @@ public class BookingController {
 
   @PostMapping
   @Operation(summary = "Create a new booking", description = "Creates a new booking")
-  @ApiResponse(responseCode = "201", description = "Booking created", content = @Content(schema = @Schema(implementation = Booking.class)))
   public ResponseEntity<Booking>  createBooking(@RequestBody Booking booking) {
     Booking createdBooking;
     if("block".equalsIgnoreCase(booking.getGuestName())){
@@ -94,8 +70,6 @@ public class BookingController {
 
   @PutMapping("/{id}")
   @Operation(summary = "Update an existing booking", description = "Updates an existing booking based on the given ID")
-  @ApiResponse(responseCode = "200", description = "Booking updated", content = @Content(schema = @Schema(implementation = Booking.class)))
-  @ApiResponse(responseCode = "404", description = "Booking not found")
   public ResponseEntity<Booking>  updateBooking(@PathVariable Long id, @RequestBody Booking booking) {
     Booking updatedBooking = bookingService.getBookingById(id);
 
@@ -119,8 +93,6 @@ public class BookingController {
 
   @DeleteMapping("/{id}")
   @Operation(summary = "Delete a booking", description = "Deletes a booking based on the given ID")
-  @ApiResponse(responseCode = "204", description = "Booking deleted")
-  @ApiResponse(responseCode = "404", description = "Booking not found")
   public ResponseEntity<Void> deleteBooking(@PathVariable("id") long id) {
     boolean deleted = bookingService.deleteBooking(id);
     if (deleted) {

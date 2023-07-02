@@ -1,5 +1,5 @@
 package com.hostfully.demo.service;
-import com.hostfully.demo.exceptions.BookingValidationException;
+
 import com.hostfully.demo.model.Booking;
 import com.hostfully.demo.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +24,10 @@ public class BookingService {
     this.bookingValidationService = bookingValidationService;
   }
 
+  public List<Booking> getAll(){
+    return bookingRepository.findAll();
+  }
+
   public List<Booking> getAllBookings() {
     return entityManager.createQuery("SELECT b FROM Booking b WHERE b.guestName != :name", Booking.class)
             .setParameter("name", "block")
@@ -39,14 +43,14 @@ public class BookingService {
   public Booking getBookingById(Long id) { return bookingRepository.findById(id).orElse(null); }
 
   public Booking createOrUpdateBooking(Booking booking) {
-    if(bookingValidationService.validateBooking(booking)) {
+    if(bookingValidationService.validateBooking(this.getAllBookings(), booking)) {
       return bookingRepository.save(booking);
     }
     return null;
   }
 
   public Booking createOrUpdateBlock(Booking booking) {
-    if(bookingValidationService.validateBlock(booking)) {
+    if(bookingValidationService.validateBlock(this.getAllBlocks(), this.getAllBookings(), booking)) {
       return bookingRepository.save(booking);
     }
     return null;

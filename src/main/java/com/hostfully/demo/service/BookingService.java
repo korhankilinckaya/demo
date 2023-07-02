@@ -1,35 +1,62 @@
 package com.hostfully.demo.service;
+import com.hostfully.demo.exceptions.BookingValidationException;
 import com.hostfully.demo.model.Booking;
 import com.hostfully.demo.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 @Service
 public class BookingService {
+
+  @PersistenceContext
+  private EntityManager entityManager;
+
   private final BookingRepository bookingRepository;
+  private final BookingValidationService bookingValidationService;
 
   @Autowired
-  public BookingService(BookingRepository bookingRepository) {
+  public BookingService(BookingRepository bookingRepository, BookingValidationService bookingValidationService) {
     this.bookingRepository = bookingRepository;
+    this.bookingValidationService = bookingValidationService;
   }
 
   public List<Booking> getAllBookings() {
-    return bookingRepository.findAll();
+    return entityManager.createQuery("SELECT b FROM Booking b WHERE b.guestName != :name", Booking.class)
+            .setParameter("name", "block")
+            .getResultList();
   }
 
-  public Booking getBookingById(Long id) {
-    return bookingRepository.findById(id).orElse(null);
+  public List<Booking> getAllBlocks() {
+    return entityManager.createQuery("SELECT b FROM Booking b WHERE b.guestName = :name", Booking.class)
+            .setParameter("name", "block")
+            .getResultList();
   }
 
-  public Booking createBooking(Booking booking) {return bookingRepository.save(booking);}
+  public Booking getBookingById(Long id) { return bookingRepository.findById(id).orElse(null); }
 
-  public Booking updateBooking(Booking booking) {
-    return bookingRepository.save(booking);
+  public Booking createOrUpdateBooking(Booking booking) {
+    if(bookingValidationService.validateBooking(booking)) {
+      return bookingRepository.save(booking);
+    }
+    return null;
   }
 
-  public void deleteBooking(Long id) {
-    bookingRepository.deleteById(id);
+  public Booking createOrUpdateBlock(Booking booking) {
+    if(bookingValidationService.validateBlock(booking)) {
+      return bookingRepository.save(booking);
+    }
+    return null;
+  }
+
+  public boolean deleteBooking(long id) {
+    if (bookingRepository.existsById(id)) {
+      bookingRepository.deleteById(id);
+      return true;
+    }
+    return false;
   }
 }

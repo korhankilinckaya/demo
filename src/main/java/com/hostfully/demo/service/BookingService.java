@@ -45,7 +45,7 @@ public class BookingService {
   }
 
   public Booking createOrUpdateBooking(Booking booking) {
-    if (bookingValidationService.validateBooking(this.getAllBookings(), booking)) {
+    if (bookingValidationService.validateBooking(this.getAll(), booking)) {
       return bookingRepository.save(booking);
     }
     return null;

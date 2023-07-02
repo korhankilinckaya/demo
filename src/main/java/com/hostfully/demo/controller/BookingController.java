@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/bookings")
+@RequestMapping("/api")
 @Tag(name = "Booking API", description = "Endpoints for managing bookings")
 public class BookingController {
   private final BookingService bookingService;
@@ -24,6 +24,17 @@ public class BookingController {
   }
 
   @GetMapping
+  @Operation(summary = "Get all bookings and blocks")
+  public ResponseEntity<List<Booking>> getAll() {
+    List<Booking> bookings = bookingService.getAll();
+    if (bookings != null) {
+      return ResponseEntity.ok(bookings);
+    } else {
+      return ResponseEntity.notFound().build();
+    }
+  }
+
+  @GetMapping("/bookings")
   @Operation(summary = "Get all bookings")
   public ResponseEntity<List<Booking>> getAllBookings() {
     List<Booking> bookings = bookingService.getAllBookings();

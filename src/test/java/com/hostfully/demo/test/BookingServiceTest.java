@@ -137,9 +137,15 @@ public class BookingServiceTest {
     //test create block when there are blocks within the same date range
     Booking newBooking = new Booking("block", LocalDate.of(2023, 7, 5), LocalDate.of(2023, 7, 20));
 
-    //when get all bookings method return null
+    List<Booking> bookings = null;
+
+    TypedQuery<Booking> query = mock(TypedQuery.class);
+    when(entityManager.createQuery(anyString(), eq(Booking.class))).thenReturn(query);
+    when(query.setParameter(eq("name"), anyString())).thenReturn(query);
+    when(query.getResultList()).thenReturn(bookings);
+
     //block should be saved
-    assertTrue(bookingValidationService.validateBlock(null, newBooking));
+    assertTrue(bookingValidationService.validateBlock(bookings, newBooking));
   }
 
   @Test

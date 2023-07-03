@@ -5,6 +5,7 @@ import com.hostfully.demo.model.Booking;
 import com.hostfully.demo.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -83,23 +84,25 @@ public class BookingController {
   @Operation(summary = "Update an existing booking", description = "Updates an existing booking based on the given ID")
   public ResponseEntity<Booking> updateBooking(@PathVariable Long id, @RequestBody Booking booking) {
     Booking updatedBooking = bookingService.getBookingById(id);
+    Booking copiedBooking = new Booking();
+    BeanUtils.copyProperties(updatedBooking, copiedBooking);
 
-    if (updatedBooking != null) {
-      if ("block".equalsIgnoreCase(updatedBooking.getGuestName())) {
-        updatedBooking.setStartDate(booking.getStartDate());
-        updatedBooking.setEndDate(booking.getEndDate());
-        updatedBooking = bookingService.createOrUpdateBlock(updatedBooking);
+    if (copiedBooking != null) {
+      if ("block".equalsIgnoreCase(copiedBooking.getGuestName())) {
+        copiedBooking.setStartDate(booking.getStartDate());
+        copiedBooking.setEndDate(booking.getEndDate());
+        copiedBooking = bookingService.createOrUpdateBlock(copiedBooking);
       } else {
-        updatedBooking.setGuestName(booking.getGuestName());
-        updatedBooking.setStartDate(booking.getStartDate());
-        updatedBooking.setEndDate(booking.getEndDate());
-        updatedBooking = bookingService.createOrUpdateBooking(updatedBooking);
+        copiedBooking.setGuestName(booking.getGuestName());
+        copiedBooking.setStartDate(booking.getStartDate());
+        copiedBooking.setEndDate(booking.getEndDate());
+        copiedBooking = bookingService.createOrUpdateBooking(copiedBooking);
       }
     } else {
-      updatedBooking = bookingService.createOrUpdateBooking(booking);
+      copiedBooking = bookingService.createOrUpdateBooking(booking);
     }
 
-    return ResponseEntity.ok(updatedBooking);
+    return ResponseEntity.ok(copiedBooking);
   }
 
   @DeleteMapping("/{id}")
